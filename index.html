@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resume Review Game</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#e4e8ee;--panel:#fff;--ink:#17202b;--mut:#5b6775;--line:#c9d0da;--acc:#2b59c3;--good:#1f8a4c;--bad:#d64545;--miss:#e0a800;--hl:#ffe680;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b24;--panel:#1f2937;--ink:#e8edf3;--mut:#9aa7b6;--line:#34414f;--acc:#7ea2f5;--good:#4cc482;--bad:#ff7070;--miss:#f2c94c;--hl:#5a4b0f}}
+:root[data-theme="dark"]{--bg:#141b24;--panel:#1f2937;--ink:#e8edf3;--mut:#9aa7b6;--line:#34414f;--acc:#7ea2f5;--good:#4cc482;--bad:#ff7070;--miss:#f2c94c;--hl:#5a4b0f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Bricolage Grotesque',system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.05;margin:.2em 0;font-weight:800}
+button{font:inherit;cursor:pointer;border-radius:8px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);padding:10px 18px;font-weight:600}
+button:disabled{opacity:.4;cursor:default}button.ghost{background:none;color:var(--ink)}
+button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--acc);outline-offset:2px}
+input{font:inherit;padding:10px;border-radius:8px;border:2px solid var(--line);background:var(--panel);color:var(--ink);width:100%;max-width:320px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-weight:600}
+.bar .sp{flex:1}.pill{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:2px 12px}
+.prog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:12px}.prog i{display:block;height:100%;background:var(--acc)}
+.paper{background:#fff;color:#111;padding:28px 30px;box-shadow:0 2px 0 var(--line),0 10px 30px #0003;max-height:78vh;overflow:auto;font-size:14px;line-height:1.4;border-radius:3px}
+.paper.serif{font-family:Georgia,'Times New Roman',serif}.paper.sans{font-family:Arial,Helvetica,sans-serif}
+.paper h2{margin:0;font-size:24px}.paper .ct{color:#444;margin:2px 0 8px}.paper h4{margin:14px 0 4px;border-bottom:1px solid #999;font-size:13px;letter-spacing:.04em}
+.paper ul{margin:2px 0 6px;padding-left:20px}.paper .j{display:flex;justify-content:space-between;gap:8px;margin-top:6px}.paper p{margin:4px 0}
+.opts{display:grid;gap:6px;margin:10px 0}.opts h5{margin:8px 0 0;font-size:14px;color:var(--mut)}
+.o{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--panel)}
+.o input{width:18px;height:18px;max-width:none;padding:0}.o.on{border-color:var(--acc);background:var(--hl)}
+.o.right{border-color:var(--good)}.o.wrong{border-color:var(--bad);text-decoration:line-through}.o.missed{border-color:var(--miss);border-style:dashed}
+.tag{margin-left:auto;font-size:12px;font-weight:600}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}td:last-child,th:last-child{text-align:right}
+.pos{color:var(--good)}.neg{color:var(--bad)}.big{font-size:3.4rem;font-weight:800;line-height:1}.mut{color:var(--mut)}
+</style></head><body><main id="app"></main>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+const OPT=[['s1','Quantified achievements','g'],['s2','Strong action verbs','g'],['s3','Clean, consistent formatting','g'],['s4','Relevant, specific skills','g'],
+['w1','Typos or grammar errors','b'],['w2','Inconsistent fonts, spacing or punctuation','b'],['w3','No measurable results','b'],['w4','Weak or passive wording','b'],
+['w5','Unprofessional contact info','b'],['w6','Irrelevant or outdated content','b'],['w7','Inconsistent dates or tense','b'],['w8','Wall of text / too dense','b']];
+const L=OPT.reduce((a,o)=>(a[o[0]]=o[1],a),{});
+const J=(t,m,l)=>`<div class=j><b>${t}</b><i>${m}</i></div><ul>${l.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+const S=(h,x)=>`<h4>${h.toUpperCase()}</h4>${x}`;
+const R=[
+{n:'Mike Johnson',c:'coolguy420@hotmail.com | 555-0142',f:'sans',k:['w1','w3','w4','w5','w6'],note:'Vague objective, hobbies, a typo, a joke email and duties instead of results.',
+b:S('Objective','<p>To get a job at a company where I can use my skills and grow as a person.</p>')+S('Experience',J('Cashier, GroceryMart','2021-2022',['Responsible for helping custommers','Was in charge of the register','Worked with team']))+S('Interests','<p>Gaming, hanging out with friends, memes, anime</p>')},
+{n:'Priya Raman',c:'priya.raman@email.com | linkedin.com/in/priyaraman | 555-0177',f:'serif',k:['s1','s2','s3','s4'],note:'Metrics, strong verbs, tidy layout and skills that match the role.',
+b:S('Experience',J('Marketing Intern, BrightPath','Jun 2024 – Aug 2024',['Grew Instagram engagement 42% by launching a weekly video series.','Designed 6 email campaigns, lifting open rates from 18% to 27%.','Presented findings to a team of 12, shaping Q4 strategy.']))+S('Education','<div class=j><b>B.S. Marketing, State University</b><i>May 2025</i></div>')+S('Skills','<p>Google Analytics, HubSpot, Canva, A/B testing, SQL (basic)</p>')},
+{n:'Jordan Ellis',c:'jellis@email.com',f:'sans',k:['w3','w4','w8'],note:'One dense paragraph of duties with no numbers. Hard to scan in 6 seconds.',
+b:S('Experience','<p><b>Server, Lakeside Grill</b> (2022-2023). I was responsible for taking orders and I also helped with the kitchen when it was busy and sometimes I trained people who were new and worked with the manager on schedules and dealt with customers who had complaints and was part of a team that kept the restaurant running and assisted with cleaning and closing duties and did whatever else was needed by the staff on shift and tried my best every day.</p>')+S('Education','<p>Lakeside High School</p>')},
+{n:'Daniel Okafor',c:'daniel.okafor@email.com | github.com/dokafor | 555-0119',f:'sans',k:['s1','s2','s3','s4'],note:'Results-first bullets, consistent layout, skills tied to the job.',
+b:S('Experience',J('Software Intern, Nimbus Labs','Jun – Aug 2024',['Built a REST API serving 5,000 daily requests.','Cut page load time 35% by caching database queries.','Wrote 60+ unit tests, raising coverage from 40% to 78%.']))+S('Projects',J('Campus Bike Share App','Spring 2024',['Led 4 students to ship an app used by 300 riders.']))+S('Skills','<p>Python, JavaScript, PostgreSQL, Git, Docker</p>')},
+{n:'Ashley Nguyen',c:'sunshine_girl99@yahoo.com | 555-0163',f:'serif',k:['s1','s2','s4','w1','w5'],note:'Great content, but a typo ("managment") and a casual email undermine it.',
+b:S('Experience',J('Store Manager, Sweet Spot Cafe','2022 – 2024',['Managed a team of 9 and reduced staff turnover by 30%.','Increased monthly sales 18% through a new loyalty program.','Improved inventory managment, cutting waste by $2,400 per year.']))+S('Skills','<p>Team leadership, scheduling, QuickBooks, customer retention</p>')},
+{n:'Carlos Mendes',c:'carlos.mendes@email.com | 555-0188',f:'sans',k:['s3','s4','w3','w4'],note:'Looks polished and skills fit, but bullets describe duties with no results.',
+b:S('Experience',J('Sales Associate, TechMart','2021 – 2023',['Helped customers with purchases','Assisted with inventory','Was part of the holiday sales team','Responsible for store displays']))+S('Education','<div class=j><b>A.A. Business, City College</b><i>2021</i></div>')+S('Skills','<p>POS systems, customer service, Microsoft Excel, product knowledge</p>')},
+{n:'Hannah Brooks',c:'hannah.brooks@email.com | 555-0121',f:'serif',k:['s1','s2','s4','w2','w7'],note:'Solid content, but mixed fonts, uneven periods and date formats, and a current job in past tense.',
+b:S('Experience',J('Analyst, Corvid Financial','Jan 2022 - <span style="font-family:Courier New">Present</span>',['Analyzed 200+ client portfolios and flagged $1.2M in risk.','Automated weekly reports, saving 6 hours a week','Trained 5 new hires on reporting tools.']))+S('Previous',J('Intern, Halden Bank','2020–2021',['Reconciled 500 accounts with 99% accuracy','Supported audit team during Q3 review.']))+S('Skills','<p>Excel, Tableau, SQL, financial modeling</p>')},
+{n:'Marcus Bell',c:'marcus.bell@email.com | 555-0154',f:'sans',k:['s1','s4','w4','w7'],note:'Numbers and skills are good, but two bullets are passive ("helped", "assisted") and tenses shift.',
+b:S('Experience',J('Project Coordinator, Ridge Builders','2022 – 2024',['Coordinated 14 projects worth $3.1M on schedule.','Helped with vendor communication.','Manage weekly site meetings for 20 contractors.','Assisted with budget tracking, saving 8%.']))+S('Education','<div class=j><b>B.S. Construction Management</b><i>2022</i></div>')+S('Skills','<p>Procore, MS Project, budgeting, OSHA 30</p>')},
+{n:'Elena Rossi',c:'elena.rossi@email.com | 555-0136',f:'serif',k:['s1','s2','s4','w2','w6'],note:'Strong bullets, but a 2011 lifeguard job and "References available" are filler; also double spaces and a stray hyphen style.',
+b:S('Experience',J('Data Analyst, Orbit Health','2023 – Present',['Built dashboards  used by 40 clinicians daily.','Reduced report turnaround by 50% using Python automation.','Presented insights to  executives, informing $500K budget.']))+S('Other',J('Lifeguard, Town Pool','2011 - 2012',['Kept swimmers safe.']))+S('Skills','<p>Python, SQL, Power BI, statistics</p><p>References available upon request</p>')},
+{n:'Tyler Reeves',c:'tyler.reeves@email.com | 555-0199',f:'sans',k:['s2','s4','w1','w2','w3'],note:'Verbs and skills are strong, but there are no numbers, "their/there" and "Universty" slips, and bullet styles differ.',
+b:S('Experience',J('Team Lead, PixelForge','2022 – 2024',['&bull; Led a team of five designers on there flagship app','- Launched three product features','&bull; Mentored junior staff and streamlined handoffs']))+S('Education','<div class=j><b>B.A. Design, State Universty</b><i>2022</i></div>')+S('Skills','<p>Figma, prototyping, user research, HTML/CSS</p>')}
+];
+const st={i:0,sel:new Set,t0:0,total:0,log:[],name:'',timer:null};
+let db=null,rows=[];
+const loc=()=>{try{return JSON.parse(localStorage.getItem('rrg-lb')||'[]')}catch(e){return[]}};
+(async()=>{try{if(window.claude&&claude.use){db=await claude.use('db');if(db)db.collection('lb').onSnapshot(s=>{rows=s.docs.map(d=>d.data());if(st.done)draw()},()=>{})}}catch(e){db=null}})();
+const board=()=>[...rows,...loc().filter(l=>!rows.some(r=>r.id===l.id))].sort((a,b)=>b.s-a.s).slice(0,10);
+const lbHtml=()=>{const b=board();return b.length?`<table><tr><th>#</th><th>Player</th><th>Score</th></tr>${b.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}</td></tr>`).join('')}</table>`:'<p class=mut>No scores yet.</p>'};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function start(){st.name=($('#nm').value||'').trim()||'Player';Object.assign(st,{i:0,total:0,log:[],done:false});show()}
+function home(){app.innerHTML=`<h1>Resume Review</h1><p style="max-width:52ch">Ten resumes, easiest to trickiest. For each one, tick every strength and weakness you can spot, then submit. Correct picks earn points. Wrong picks and misses cost you, so guessing everything won't work.</p>
+<div class=grid><div class=card><p><b>Scoring</b></p><table><tr><td>Each correct pick</td><td class=pos>+100</td></tr><tr><td>Each wrong pick</td><td class=neg>-75</td></tr><tr><td>Each item you miss</td><td class=neg>-25</td></tr><tr><td>Completion bonus (70%+ found, max 2 wrong)</td><td class=pos>+100</td></tr><tr><td>Speed bonus (under 90s, 70%+ found)</td><td class=pos>+50</td></tr></table>
+<p><input id="nm" placeholder="Your name" maxlength="20" aria-label="Your name"></p><button onclick="start()">Start</button></div><div class=card><b>Leaderboard</b>${lbHtml()}</div></div>`}
+function show(){const r=R[st.i];st.sel=new Set;st.t0=Date.now();clearInterval(st.timer);
+app.innerHTML=`<div class=bar><span class=pill>Resume ${st.i+1} of ${R.length}</span><span class=pill>Score <span id=sc>${st.total}</span></span><span class=sp></span><span class=pill id=tm>0s</span></div><div class=prog><i style="width:${st.i/R.length*100}%"></i></div>
+<div class=grid><div class="paper ${r.f}" tabindex=0 aria-label="Resume"><h2>${r.n}</h2><div class=ct>${r.c}</div>${r.b}</div>
+<div class=card><b>What do you notice?</b><div class=opts id=op>${['g','b'].map(t=>`<h5>${t=='g'?'Strengths':'Weaknesses'}</h5>`+OPT.filter(o=>o[2]==t).map(o=>`<label class=o data-id=${o[0]}><input type=checkbox onchange="pick('${o[0]}',this)">${o[1]}<span class=tag></span></label>`).join('')).join('')}</div>
+<div id=act><button onclick="submit()">Submit answers</button></div><div id=res></div></div></div>`;
+st.timer=setInterval(()=>{const e=$('#tm');if(e)e.textContent=Math.floor((Date.now()-st.t0)/1000)+'s'},500)}
+function pick(id,el){el.checked?st.sel.add(id):st.sel.delete(id);el.parentNode.classList.toggle('on',el.checked)}
+function submit(){clearInterval(st.timer);const r=R[st.i],secs=(Date.now()-st.t0)/1000,K=new Set(r.k);
+const ok=[...st.sel].filter(x=>K.has(x)),bad=[...st.sel].filter(x=>!K.has(x)),miss=r.k.filter(x=>!st.sel.has(x));
+const acc=ok.length/r.k.length,comp=acc>=.7&&bad.length<=2,spd=comp||acc>=.7?(secs<90&&acc>=.7):false;
+const lines=[['Correct ×'+ok.length,ok.length*100],['Wrong ×'+bad.length,-75*bad.length],['Missed ×'+miss.length,-25*miss.length]];
+if(comp)lines.push(['Completion bonus',100]);if(spd)lines.push(['Speed bonus ('+Math.round(secs)+'s)',50]);
+const pts=lines.reduce((a,l)=>a+l[1],0);st.total+=pts;st.log.push({n:r.n,pts,secs:Math.round(secs)});
+document.querySelectorAll('.o').forEach(o=>{const id=o.dataset.id,t=o.querySelector('.tag'),s=st.sel.has(id),k=K.has(id);o.querySelector('input').disabled=true;o.classList.remove('on');
+if(s&&k){o.classList.add('right');t.textContent='✓ +100'}else if(s){o.classList.add('wrong');t.textContent='✗ -75'}else if(k){o.classList.add('missed');t.textContent='missed'}});
+$('#sc').textContent=st.total;
+$('#act').innerHTML='';const last=st.i==R.length-1;
+$('#res').innerHTML=`<table>${lines.map(l=>`<tr><td>${l[0]}</td><td class="${l[1]<0?'neg':'pos'}">${l[1]>0?'+':''}${l[1]}</td></tr>`).join('')}<tr><td><b>This resume</b></td><td><b>${pts}</b></td></tr></table><p class=mut>${r.note}</p><button onclick="${last?'finish()':'st.i++;show()'}">${last?'See final score':'Next resume'}</button>`}
+async function finish(){st.done=true;const e={id:Date.now()+'-'+Math.random().toString(36).slice(2,7),n:st.name,s:st.total,t:Date.now()};
+try{const l=loc();l.push(e);localStorage.setItem('rrg-lb',JSON.stringify(l))}catch(x){}
+if(db)try{await db.collection('lb').doc(e.id).set(e)}catch(x){}
+draw()}
+function draw(){app.innerHTML=`<h1>Final score</h1><div class=grid><div class=card><div class=big>${st.total}</div><p>${esc(st.name)}</p><table>${st.log.map((l,i)=>`<tr><td>${i+1}. ${l.n} <span class=mut>${l.secs}s</span></td><td class="${l.pts<0?'neg':'pos'}">${l.pts}</td></tr>`).join('')}</table><p><button onclick="home()">Play again</button></p></div><div class=card><b>Leaderboard</b>${lbHtml()}</div></div>`}
+home();
+</script></body></html>
